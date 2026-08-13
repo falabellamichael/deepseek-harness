@@ -9,9 +9,48 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
-    "smoke": "electron . --smoke"
+    "smoke": "electron . --smoke",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win"
   },
   "devDependencies": {
-    "electron": "^33.0.0"
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.deepseek-ai.harness.desktop",
+    "productName": "DeepSeek Harness Desktop",
+    "files": [
+      "src/**",
+      "resources/**",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "resources"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "resources/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
   }
 }

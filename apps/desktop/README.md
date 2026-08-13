@@ -11,13 +11,19 @@ app tier alongside `apps/cli` and `apps/web`.
 
 The Electron main process (`src/main.mjs`):
 
-1. Locates the repository root by walking up to the `@deepseek-ai/dsh-root`
-   package.
-2. Spawns `dsh web` as a child process from that root.
+1. Resolves the repository root per user: an explicit `DSH_REPO_ROOT`, then the
+   directory the app lives in, then the user's previously-confirmed path, then a
+   bounded scan of the user's drives and home directory for the
+   `@deepseek-ai/dsh-root` marker, and finally a one-time folder picker whose
+   choice is remembered.
+2. Spawns the harness server as a child — preferring the built CLI under plain
+   `node` (`apps/cli/lib/bin.js web`), falling back to `pnpm dsh web` for a
+   fresh source checkout without a build.
 3. Polls the default URL `http://127.0.0.1:3080` (override with the
    `DSH_DESKTOP_PORT` environment variable) until it responds with HTTP 2xx.
 4. Creates a hidden-then-shown `BrowserWindow` loading that URL.
-5. Tears the server down when the app quits.
+5. Tears the server process tree down when the app quits (`taskkill /T` on
+   Windows, a process-group signal on POSIX).
 
 External links are delegated to the system browser; `nodeIntegration` is off
 and `contextIsolation` is on, so the hosted UI has no access to Node.
@@ -26,11 +32,13 @@ and `contextIsolation` is on, so the hosted UI has no access to Node.
 
 ```sh
 pnpm install
+pnpm run build
 pnpm --filter @deepseek-ai/dsh-desktop start
 ```
 
-`pnpm --filter @deepseek-ai/dsh-desktop dev` opens the DevTools along with the
-window.
+`pnpm run build` builds the harness CLI `lib/` the shell drives. (If it is
+skipped, the shell falls back to `pnpm dsh web`.) `pnpm --filter
+@deepseek-ai/dsh-desktop dev` opens the DevTools along with the window.
 
 ## Smoke test
 
@@ -58,8 +66,25 @@ DSH_DESKTOP_PORT=3101 pnpm --filter @deepseek-ai/dsh-desktop start
 node apps/desktop/scripts/generate-icon.mjs
 ```
 
-## Packaged distributables
+## Build the Windows app (.exe)
 
-A packaged installer that bundles the full harness server and a runtime is not
-included yet; the current scope is the source-run desktop shell. The
-`electron-builder` packaging step is a natural follow-up.
+Requires Windows, Node.js ≥ 22, and pnpm 11. From the repository root:
+
+```sh
+pnpm install
+pnpm run build
+pnpm --filter @deepseek-ai/dsh-desktop dist
+```
+
+`electron-builder` writes two artifacts to `apps/desktop/dist/`:
+
+- `DeepSeek Harness Desktop Setup 0.1.0-rc.5.exe` — NSIS **installer**
+  (creates Desktop and Start-menu shortcuts).
+- `DeepSeek Harness Desktop 0.1.0-rc.5.exe` — **portable** app; double-click
+  to run without installing.
+
+The packaged app discovers an installed DeepSeek Harness checkout on the target
+machine (auto-detected, or chosen once and remembered per user) and runs that
+checkout's local `dsh web` server. It does **not** bundle the server or a Node
+runtime, so the target machine needs a checkout and Node to actually serve.
+The executables are unsigned; Windows SmartScreen may ask to run them anyway.

@@ -1,5 +1,9 @@
 # Smoke test artifact
 smoke/
 
+# electron-builder output (installers + unpacked app)
+dist/
+*.exe
+
 # node_modules is ignored at the repository root; kept here for standalone correctness
 node_modules/
