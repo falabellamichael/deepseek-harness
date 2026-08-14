@@ -61,6 +61,11 @@
   config:
     sampleOverCapGlobResults: false
 
+- id: tool-str-replace-editor
+  name: '@deepseek-ai/dsh-tool-str-replace-editor'
+  config:
+    maxOutputChars: 16000
+
 # ── background jobs ────────────────────────────────────────────────────────
 
 # Only the model-facing controls. The task REGISTRY stays on the host plane:
@@ -250,3 +255,9 @@
   config:
     fetch: false
     searchTimeoutMs: 60000
+
+# ── self-modification ───────────────────────────────────────────────────────
+
+# Read the live runtime, inspect or mount temporary plugins in memory.
+- id: tool-cordis
+  name: '@deepseek-ai/dsh-tool-cordis'

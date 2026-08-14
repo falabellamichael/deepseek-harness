@@ -268,3 +268,8 @@
   flex: 0 0 auto;
   color: var(--dsw-alias-label-tertiary);
 }
+
+.cellChevronLeft {
+  flex: 0 0 auto;
+  color: var(--dsw-alias-label-tertiary);
+}

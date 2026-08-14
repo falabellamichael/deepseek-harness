@@ -130,8 +130,30 @@ describe('ModelSelect reasoning effort', () => {
     expect(trigger.textContent).toContain('选择模型')
     fireEvent.click(trigger)
     expect(screen.queryByRole('menuitem', { name: /推理等级/ })).toBeNull()
-    fireEvent.click(screen.getByRole('menuitem', { name: /模型/ }))
     expect(screen.queryByText('removed-model')).toBeNull()
+    expect(screen.getByRole('menuitemradio', { name: 'DeepSeek-V4-Flash' })).toBeTruthy()
+  })
+
+  it('navigates to effort pane and back to model list', () => {
+    const directory = createSnapshotStore(state())
+    render(<ModelSelect
+      locked={false}
+      available
+      directory={directory}
+      load={vi.fn()}
+      select={vi.fn().mockResolvedValue(true)}
+      t={t}
+    />)
+
+    fireEvent.click(screen.getByRole('button', { name: /选择模型|当前/ }))
+    // Direct models list on open
+    expect(screen.getByRole('menuitemradio', { name: 'DeepSeek-V4-Flash' })).toBeTruthy()
+    // Navigate to effort pane
+    fireEvent.click(screen.getByRole('menuitem', { name: /推理等级/ }))
+    expect(screen.getAllByRole('menuitemradio').map(item => item.textContent))
+      .toEqual(['Off', 'High', 'MaxLargest budget'])
+    // Navigate back to model list
+    fireEvent.click(screen.getByRole('menuitem', { name: /模型/ }))
     expect(screen.getByRole('menuitemradio', { name: 'DeepSeek-V4-Flash' })).toBeTruthy()
   })
 
@@ -159,7 +181,6 @@ describe('ModelSelect reasoning effort', () => {
     />)
 
     fireEvent.click(screen.getByRole('button', { name: /选择模型|当前/ }))
-    fireEvent.click(screen.getByRole('menuitem', { name: /模型/ }))
     fireEvent.click(screen.getByRole('menuitemradio', { name: /DeepSeek-V4-Pro/ }))
     const toast = await screen.findByRole('alert')
     expect(toast.textContent).toContain('模型操作失败：model-unavailable: session already contains images')

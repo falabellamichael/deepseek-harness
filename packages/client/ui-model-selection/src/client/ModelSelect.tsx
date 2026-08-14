@@ -18,15 +18,15 @@ import {
 import clsx from 'clsx'
 import type { ModelReasoningEffort, ModelSelection } from '@deepseek-ai/dsh-api-remotes/client'
 import {
-  IconCheckOutline16, IconChevronDownOutline14, IconChevronRightOutline14,
-  IconWarningOutline16, Toast,
+  IconCheckOutline16, IconChevronDownOutline14, IconChevronLeftOutline14,
+  IconChevronRightOutline14, IconWarningOutline16, Toast,
 } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
 import type { ModelSelectInjected } from './slots.ts'
 import css from './ModelSelect.module.css'
 
-/** Which pane the dropdown shows: the two-row root or one drilled-in list. */
-type Pane = 'root' | 'model' | 'effort'
+/** Which pane the dropdown shows: the model catalog list or the effort levels. */
+type Pane = 'model' | 'effort'
 
 /** One dynamic effort row; undefined means preserve the provider default. */
 interface EffortChoice {
@@ -51,7 +51,7 @@ export function ModelSelect(
     () => directory.getSnapshot(),
   )
   const [open, setOpen] = useState(false)
-  const [pane, setPane] = useState<Pane>('root')
+  const [pane, setPane] = useState<Pane>('model')
   // The in-menu error strip serves catalog loads (its Retry re-runs the
   // load); a rejected SELECTION announces through the transient toast
   // instead, so the strip renders only while the latest failure-capable
@@ -127,14 +127,14 @@ export function ModelSelect(
   if (!available) return null
 
   const show = (): void => {
-    setPane('root')
+    setPane('model')
     setOpen(true)
     reload()
   }
 
   const close = (restoreFocus = false): void => {
     setOpen(false)
-    setPane('root')
+    setPane('model')
     if (restoreFocus) queueMicrotask(() => { triggerRef.current?.focus() })
   }
 
@@ -149,8 +149,8 @@ export function ModelSelect(
   const onRootKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
     if (event.key === 'Escape' && open) {
       event.preventDefault()
-      // Escape backs out of a drilled pane first, then closes.
-      if (pane !== 'root') setPane('root')
+      // Escape backs out of the effort pane first, then closes.
+      if (pane !== 'model') setPane('model')
       else close(true)
       return
     }
@@ -249,25 +249,21 @@ export function ModelSelect(
           aria-label={t('menu.aria')}
           aria-busy={state.status === 'loading' || busy}
         >
-          {pane === 'root' && (
+          {pane === 'model' && (
             <>
-              <button ref={itemRef()} type="button" role="menuitem" className={css.cell} onClick={() => { setPane('model') }}>
-                <span className={css.cellLabel}>{t('menu.model')}</span>
-                <span className={css.cellValue}>{modelLabel}</span>
-                <IconChevronRightOutline14 className={css.cellChevron} />
-              </button>
               {reasoning !== undefined && (
-                <button ref={itemRef()} type="button" role="menuitem" className={css.cell} onClick={() => { setPane('effort') }}>
+                <button
+                  ref={itemRef()}
+                  type="button"
+                  role="menuitem"
+                  className={css.cell}
+                  onClick={() => { setPane('effort') }}
+                >
                   <span className={css.cellLabel}>{t('menu.effort')}</span>
                   <span className={css.cellValue}>{effortLabel}</span>
                   <IconChevronRightOutline14 className={css.cellChevron} />
                 </button>
               )}
-            </>
-          )}
-
-          {pane === 'model' && (
-            <>
               {state.status === 'loading' && (
                 <div className={css.status}>{t('status.loading')}</div>
               )}
@@ -327,6 +323,16 @@ export function ModelSelect(
 
           {pane === 'effort' && (
             <>
+              <button
+                ref={itemRef()}
+                type="button"
+                role="menuitem"
+                className={css.cell}
+                onClick={() => { setPane('model') }}
+              >
+                <IconChevronLeftOutline14 className={css.cellChevronLeft} />
+                <span className={css.cellLabel}>{t('menu.model')}</span>
+              </button>
               {state.error !== null && lastActionRef.current === 'load' && (
                 <div className={css.error}>
                   <span>{t('error.action', { message: state.error })}</span>

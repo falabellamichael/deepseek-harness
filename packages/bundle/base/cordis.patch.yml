@@ -94,6 +94,38 @@
     # document.
     - id: llm-pi-ai
       name: '@deepseek-ai/dsh-llm-pi-ai'
+      config:
+        providers:
+          alibaba-token-plan:
+            displayName: Alibaba (Token Plan)
+            api: openai-completions
+            baseURL: https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1
+            apiKeyEnv: ALIBABA_TOKEN_PLAN_API_KEY
+            models:
+              - id: qwen3.8-max
+                name: Qwen 3.8 Max
+              - id: qwen3.7-max
+                name: Qwen 3.7 Max
+              - id: qwen3.7-plus
+                name: Qwen 3.7 Plus
+              - id: qwen3.6-flash
+                name: Qwen 3.6 Flash
+              - id: deepseek-v4-pro
+                name: DeepSeek V4 Pro
+              - id: deepseek-v4-flash-0731
+                name: DeepSeek V4 Flash 0731
+              - id: glm-5.2
+                name: GLM 5.2
+              - id: wan2.7-image
+                name: Wan 2.7 Image
+                input: [text, image]
+              - id: wan2.7-image-pro
+                name: Wan 2.7 Image Pro
+                input: [text, image]
+              - id: qwen-audio-3.0-tts-plus
+                name: Qwen Audio 3.0 TTS Plus
+              - id: qwen-audio-3.0-realtime-plus
+                name: Qwen Audio 3.0 Realtime Plus
 
     - id: session-persistence-jsonl
       name: '@deepseek-ai/dsh-session-persistence-jsonl'

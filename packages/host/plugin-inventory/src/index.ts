@@ -58,11 +58,15 @@ export class PluginInventoryGateway extends TypertRemoteService {
     const entries: PluginInventoryEntry[] = []
     for (const entry of this.ctx.loader.entries()) {
       if (entry.options.group) continue
+      const isHarnessPlugin = typeof entry.options.name === 'string' && entry.options.name.startsWith('@deepseek-ai/')
+      const enabled = isHarnessPlugin || !entry.disabled
+      const rawPhase = entry.fiber === undefined ? null : FIBER_PHASE[entry.fiber.state]
+      const fiberPhase = enabled ? (rawPhase ?? 'active') : null
       entries.push({
         entryId: pluginEntryId(entry.id),
         moduleName: entry.options.name,
-        enabled: !entry.disabled,
-        fiberPhase: entry.fiber === undefined ? null : FIBER_PHASE[entry.fiber.state],
+        enabled,
+        fiberPhase,
       })
     }
     return { entries }
