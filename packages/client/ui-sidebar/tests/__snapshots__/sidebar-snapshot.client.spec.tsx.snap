@@ -30,6 +30,7 @@ exports[`sidebar shell snapshots > renders the collapsed rail after the crossfad
               data-content="965fe321"
               fill="none"
               height="17.6580310880829"
+              overflow="visible"
               viewBox="0 0 23.16 17.04"
               width="24"
             />
@@ -125,6 +126,7 @@ exports[`sidebar shell snapshots > renders the expanded column (wordmark, capsul
                 data-content="965fe321"
                 fill="none"
                 height="17.6580310880829"
+                overflow="visible"
                 viewBox="0 0 23.16 17.04"
                 width="24"
               />
@@ -251,6 +253,7 @@ exports[`sidebar shell snapshots > renders the expanded column in the default lo
                 data-content="965fe321"
                 fill="none"
                 height="17.6580310880829"
+                overflow="visible"
                 viewBox="0 0 23.16 17.04"
                 width="24"
               />
