@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -9,7 +10,7 @@ import {
 } from 'node:fs'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { delimiter, dirname, join, resolve } from 'node:path'
 import { promisify } from 'node:util'
 import { Context } from '@deepseek-ai/cordis'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -30,6 +31,11 @@ const codexPackage = JSON.parse(readFileSync(
   'utf8',
 )) as { version: string; bin: { codex: string } }
 const codexEntry = resolve(dirname(codexPackageJson), codexPackage.bin.codex)
+
+// Keep PATH hermetic but expose the host bubblewrap (CI unpacks it into
+// $RUNNER_TEMP and adds that dir via $GITHUB_PATH); Codex looks bwrap up on PATH.
+const bwrapDir = (process.env.PATH ?? '').split(delimiter)
+  .find(dir => dir !== '' && existsSync(join(dir, 'bwrap')))
 
 const roots: string[] = []
 const contexts: Context[] = []
@@ -88,7 +94,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)(
         CODEX_HOME: codexHome,
         HOME: root,
         XDG_CONFIG_HOME: join(root, 'xdg-config'),
-        PATH: root,
+        PATH: bwrapDir === undefined ? root : `${root}${delimiter}${bwrapDir}`,
         HTTP_PROXY: '',
         HTTPS_PROXY: '',
         ALL_PROXY: '',
